@@ -1,16 +1,22 @@
 package org.mel.hibernate.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "car")
+@NamedNativeQueries({
+        @NamedNativeQuery(name = "CarEntity.findCarByCompany",
+                query = "SELECT carId, company, model, price"
+                        + " FROM car"
+                        + " WHERE company = ?",
+                resultClass = CarEntity.class)
+})
 public class CarEntity {
 
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name = "carId")
     private Long id;
 
     @Column(name = "company")
@@ -20,7 +26,7 @@ public class CarEntity {
     private String model;
 
     @Column(name = "price")
-    private long price;
+    private Long price;
 
     public void setId(Long id) {
         this.id = id;
@@ -46,12 +52,14 @@ public class CarEntity {
         this.model = model;
     }
 
-    public long getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
+
+
 
 }

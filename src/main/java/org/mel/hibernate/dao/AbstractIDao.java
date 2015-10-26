@@ -1,7 +1,5 @@
 package org.mel.hibernate.dao;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.lang.reflect.ParameterizedType;
@@ -9,14 +7,14 @@ import java.lang.reflect.ParameterizedType;
 /**
  * Created by mel on 10/11/15.
  */
-public abstract class AbstractDao<T> implements Dao<T> {
+public abstract class AbstractIDao<T> implements IDao<T> {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
 
     Class<T> clazz;
 
-    public AbstractDao() {
+    public AbstractIDao() {
         this.clazz = (Class) ((ParameterizedType) getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0];
     }
@@ -30,25 +28,30 @@ public abstract class AbstractDao<T> implements Dao<T> {
     }
 
     @Override
-    @Transactional
-    public T getById(long id) {
+    public T getById(Long id) {
         return entityManager.find(clazz, id);
     }
 
     @Override
-    @Transactional
     public void save(T entity) {
         entityManager.persist(entity);
     }
 
     @Override
-    @Transactional
     public void remove(T entity) {
-        entityManager.remove(entity);
+
+        if (entityManager.contains(entity))
+        {
+            entityManager.remove(entity);
+        }
+        else
+        {
+            entityManager.remove(entityManager.merge(entity));
+        }
+
     }
 
     @Override
-    @Transactional
     public T update(T entity) {
         return entityManager.merge(entity);
     }
